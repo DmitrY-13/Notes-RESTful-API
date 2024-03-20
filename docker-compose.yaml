@@ -1,0 +1,32 @@
+version: '3.7'
+
+services:
+  db:
+    image: postgres
+    ports:
+      - '5432:5432'
+    expose:
+      - 5432
+    env_file:
+      - /.env
+    volumes:
+      - ./.env:/.env
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    ports:
+      - '8000:8000'
+    volumes:
+      - ./app:/app
+      - ./migrations:/migrations
+      - ./.env-non-dev:/.env
+      - ./alembic.ini:/alembic.ini
+    depends_on:
+      db:
+        condition: service_healthy
+    command: sh -c 'alembic upgrade head && gunicorn app.routing.routing:app --workers 1 --worker-class uvicorn.workers.UvicornWorker --bind=0.0.0.0:8000'
