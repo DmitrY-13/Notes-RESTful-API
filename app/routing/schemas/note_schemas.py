@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any, Optional
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 
 from app.configs.note_config import NoteConfig
 from app.exceptions.http_exceptions import (
@@ -56,5 +56,4 @@ class NoteResponseSchema(BaseModel):
     updated_at: datetime | None
     deleted_at: datetime | None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

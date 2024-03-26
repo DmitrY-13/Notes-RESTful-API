@@ -39,7 +39,7 @@ class Middleware:
         cls, note_id: int, session: new_session
     ) -> NoteResponseSchema:
         note = await cls._get(note_id, session)
-        return NoteResponseSchema.from_orm(note)
+        return NoteResponseSchema.model_validate(note)
 
     @classmethod
     async def update(

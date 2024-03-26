@@ -1,14 +1,14 @@
-from httpx import AsyncClient
+from httpx import AsyncClient, ASGITransport
 
 from app.routing.routing import app
 
 
-class TestClient:
+class Client:
     _path = '/api/v1/notes'
     _path_with_id = 'api/v1/notes/{}'
 
     def __init__(self):
-        self.test_client = AsyncClient(app=app, base_url='http://test')
+        self.test_client = AsyncClient(transport=ASGITransport(app=app), base_url='http://test')
 
     async def __aenter__(self):
         await self.test_client.__aenter__()

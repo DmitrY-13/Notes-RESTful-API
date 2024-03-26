@@ -7,7 +7,7 @@ from app.db.db import get_session
 from app.db.models import Base
 from app.routing.routing import app
 from tests.exceptions import NoteCreationError
-from tests.test_client import TestClient
+from tests.client import Client
 from tests.test_data import ValidJSON
 
 engine = create_async_engine('sqlite+aiosqlite:///:memory:')
@@ -30,26 +30,16 @@ async def override_get_db():
 app.dependency_overrides[get_session] = override_get_db
 
 
-@pytest.fixture(scope='session')
-def event_loop():
-    try:
-        loop = asyncio.get_running_loop()
-    except RuntimeError:
-        loop = asyncio.new_event_loop()
-    yield loop
-    loop.close()
-
-
 @pytest.fixture
 async def test_client():
-    async with TestClient() as tc:
-        yield tc
+    async with Client() as client:
+        yield client
 
 
 @pytest.fixture
 async def note():
-    async with TestClient() as tc:
-        response = await tc.post_note(ValidJSON.max_values())
+    async with Client() as client:
+        response = await client.post_note(ValidJSON.max_values())
 
         if response.status_code != 201:
             raise NoteCreationError
@@ -58,4 +48,4 @@ async def note():
 
         yield note
 
-        await tc.delete_note(note['id'])
+        await client.delete_note(note['id'])
